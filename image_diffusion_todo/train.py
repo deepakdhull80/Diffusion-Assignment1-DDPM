@@ -29,6 +29,7 @@ def main(args):
     config.update(vars(args))
     config.device = f"cuda:{args.gpu}"
     # config.device = "mps"
+    config.device = config.device if torch.cuda.is_available() else "cpu"
     
     now = get_current_time()
     if args.use_cfg:
