@@ -27,8 +27,9 @@ def main(args):
     """config"""
     config = DotMap()
     config.update(vars(args))
-    config.device = f"cuda:{args.gpu}"
-
+    # config.device = f"cuda:{args.gpu}"
+    config.device = "mps"
+    
     now = get_current_time()
     if args.use_cfg:
         save_dir = Path(f"results/cfg_diffusion-{args.sample_method}-{now}")
