@@ -13,7 +13,8 @@ from network import UNet
 from pytorch_lightning import seed_everything
 from scheduler import DDPMScheduler
 from torchvision.transforms.functional import to_pil_image
-from tqdm import tqdm
+# from tqdm import tqdm
+from tqdm.auto import tqdm
 
 matplotlib.use("Agg")
 
