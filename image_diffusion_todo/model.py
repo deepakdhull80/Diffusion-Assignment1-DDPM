@@ -60,7 +60,8 @@ class DiffusionModule(nn.Module):
             #######################
 
         traj = [x_T]
-        for t in tqdm(self.var_scheduler.timesteps):
+        # for t in tqdm(self.var_scheduler.timesteps):
+        for t in self.var_scheduler.timesteps:
             x_t = traj[-1]
             if do_classifier_free_guidance:
                 ######## TODO ########

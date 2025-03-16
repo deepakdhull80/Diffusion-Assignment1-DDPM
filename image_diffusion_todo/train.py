@@ -89,47 +89,48 @@ def main(args):
 
     step = 0
     losses = []
-    with tqdm(initial=step, total=config.train_num_steps) as pbar:
-        while step < config.train_num_steps:
-            if step % config.log_interval == 0:
-                ddpm.eval()
-                plt.plot(losses)
-                plt.savefig(f"{save_dir}/loss.png")
-                plt.close()
-                samples = ddpm.sample(4, return_traj=False)
-                pil_images = tensor_to_pil_image(samples)
-                for i, img in enumerate(pil_images):
-                    img.save(save_dir / f"step={step}-{i}.png")
+    # with tqdm(initial=step, total=config.train_num_steps) as pbar:
+    while step < config.train_num_steps:
+        if step % config.log_interval == 0:
+            ddpm.eval()
+            plt.plot(losses)
+            plt.savefig(f"{save_dir}/loss.png")
+            plt.close()
+            samples = ddpm.sample(4, return_traj=False)
+            pil_images = tensor_to_pil_image(samples)
+            for i, img in enumerate(pil_images):
+                img.save(save_dir / f"step={step}-{i}.png")
 
-                ddpm.save(f"{save_dir}/last.ckpt")
-                ddpm.train()
+            ddpm.save(f"{save_dir}/last.ckpt")
+            ddpm.train()
 
-            img, label = next(train_it)
-            img, label = img.to(config.device), label.to(config.device)
-            if args.use_cfg:  # Conditional, CFG training
-                loss = ddpm.get_loss(img, class_label=label)
-            else:  # Unconditional training
-                loss = ddpm.get_loss(img)
-            pbar.set_description(f"Loss: {loss.item():.4f}")
+        img, label = next(train_it)
+        img, label = img.to(config.device), label.to(config.device)
+        if args.use_cfg:  # Conditional, CFG training
+            loss = ddpm.get_loss(img, class_label=label)
+        else:  # Unconditional training
+            loss = ddpm.get_loss(img)
+        # pbar.set_description(f"Loss: {loss.item():.4f}")
+        if step % 100 == 0:
+            print(f"Step: {step}, Loss: {loss.item():.4f}")
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
+        losses.append(loss.item())
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            scheduler.step()
-            losses.append(loss.item())
-
-            step += 1
-            pbar.update(1)
+        step += 1
+        # pbar.update(1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--gpu", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument(
         "--train_num_steps",
         type=int,
-        default=100000,
+        default=50000,
         help="the number of model training steps.",
     )
     parser.add_argument("--warmup_steps", type=int, default=200)
