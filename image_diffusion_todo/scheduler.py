@@ -98,14 +98,17 @@ class DDPMScheduler(BaseScheduler):
         alphas = extract(self.alphas, x_t, t)
         alphas_cumprod = extract(self.alphas_cumprod, x_t, t)
         
-        factor = (1 - alphas)/(torch.sqrt(1 - alphas_cumprod))
+        factor = (1 - alphas) / (torch.sqrt(1 - alphas_cumprod))
         
-        mean = 1/torch.sqrt(alphas) * ( x_t - factor * eps_theta)
+        mean = 1 / torch.sqrt(alphas) * (x_t - factor * eps_theta)
+        
+        # Correctly scale the noise with sigma_t from the scheduler
+        sigma_t = extract(self.sigmas, x_t, t)
         noise = torch.randn_like(x_t).to(x_t.device)
         
-        sample_prev = mean + (t>0).float() * noise
+        sample_prev = mean + sigma_t * (t > 0).float() * noise
         #######################
-        
+                
         return sample_prev
     
     # https://nn.labml.ai/diffusion/ddpm/utils.html

@@ -24,7 +24,7 @@ class DiffusionModule(nn.Module):
         x_t, noise = self.var_scheduler.add_noise(x0, timestep, noise)
         noise_p = self.network(x_t, timestep)
         
-        loss = F.mse_loss(noise, noise_p, reduce='mean')
+        loss = F.mse_loss(noise, noise_p, reduction='mean')
         ######################
         return loss
     
