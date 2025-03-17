@@ -12,7 +12,8 @@ def main(args):
     save_dir = Path(args.save_dir)
     save_dir.mkdir(exist_ok=True, parents=True)
 
-    device = f"cuda:{args.gpu}"
+    # device = f"cuda:{args.gpu}"
+    device = "mps"
 
     ddpm = DiffusionModule(None, None)
     ddpm.load(args.ckpt_path)
@@ -31,6 +32,7 @@ def main(args):
     num_batches = int(np.ceil(total_num_samples / args.batch_size))
 
     for i in range(num_batches):
+        print(f"Batch {i} Started")
         sidx = i * args.batch_size
         eidx = min(sidx + args.batch_size, total_num_samples)
         B = eidx - sidx
